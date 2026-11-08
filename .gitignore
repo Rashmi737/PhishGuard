@@ -1,3 +1,6 @@
+# ============================================================
+# PhishGuard Project Exclusions & Sensitive Files
+# ============================================================
 # Instance folder & SQLite databases
 instance/
 *.db
@@ -6,7 +9,7 @@ instance/
 
 # Python bytecode & cache
 __pycache__/
-*.py[cod]
+*.py[codz]
 *$py.class
 .pytest_cache/
 
@@ -14,16 +17,110 @@ __pycache__/
 .env
 .env.local
 *.env
+.envrc
 
 # Python virtual environments
 venv/
 .venv/
 env/
+ENV/
+env.bak/
+venv.bak/
 
 # Editor & IDE settings
 .vscode/
 .idea/
+.spyderproject
+.spyproject
+.ropeproject
 
 # Operating system files
 .DS_Store
 Thumbs.db
+
+# ============================================================
+# Standard Python Ignore Rules (GitHub Template)
+# ============================================================
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+*.lcov
+.hypothesis/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Flask & web framework caches
+.webassets-cache
+local_settings.py
+
+# Jupyter & IPython
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+
+# Package managers
+Pipfile.lock
+poetry.lock
+poetry.toml
+pdm.lock
+pdm.toml
+.pdm-python
+.pdm-build/
+pixi.lock
+.pixi/*
+!.pixi/config.toml
+__pypackages__/
+
+# Type checking & linting
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+cython_debug/
+
+# PyPI configuration
+.pypirc
