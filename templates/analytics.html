@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Analytics | PhishGuard{% endblock %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='js/vendor/chart.umd.min.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<main class="page-main">
+  <div class="container">
+
+    <div class="page-head">
+      <div>
+        <p class="section-kicker">Threat Dashboard</p>
+        <h1 class="section-title">Your <span class="gradient-text">Analytics</span></h1>
+        <p class="section-sub left">Real numbers from your personal scan database — nothing generic, nothing shared.</p>
+      </div>
+      <div class="page-head-side">
+        <button type="button" id="refreshAnalytics" class="btn-outline-sm">
+          <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M13.6 5A7 7 0 1 0 15 8h-2a5 5 0 1 1-1.3-3.3L9 7h6V1l-1.4 4Z"/></svg>
+          Refresh
+        </button>
+        <a class="btn-outline-sm" href="{{ url_for('history') }}">View history →</a>
+      </div>
+    </div>
+
+    <!-- Stat tiles -->
+    <div class="analytics-tiles" aria-label="Scan totals">
+      <div class="tile tile-total">
+        <div class="tile-label">Total URLs Scanned</div>
+        <div class="tile-value" id="statTotal">–</div>
+        <div class="tile-foot">avg risk <span id="statAvg">–</span> / 100</div>
+      </div>
+      <div class="tile tile-low">
+        <div class="tile-label">Low Risk</div>
+        <div class="tile-value" id="statLow">–</div>
+        <div class="tile-foot">scores 0 – 29</div>
+      </div>
+      <div class="tile tile-med">
+        <div class="tile-label">Medium Risk</div>
+        <div class="tile-value" id="statMedium">–</div>
+        <div class="tile-foot">scores 30 – 69</div>
+      </div>
+      <div class="tile tile-high">
+        <div class="tile-label">High Risk</div>
+        <div class="tile-value" id="statHigh">–</div>
+        <div class="tile-foot">scores 70 – 100</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div id="chartsWrap" class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-head">
+          <h2>Risk Distribution</h2>
+          <span class="chart-sub">Low vs Medium vs High across all your scans</span>
+        </div>
+        <div class="chart-body doughnut-body">
+          <canvas id="riskDoughnut" role="img" aria-label="Doughnut chart of low, medium and high risk scans"></canvas>
+        </div>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="dot dot-low"></span>Low <b id="legendLowPct">0%</b></span>
+          <span class="legend-item"><span class="dot dot-medium"></span>Medium <b id="legendMedPct">0%</b></span>
+          <span class="legend-item"><span class="dot dot-high"></span>High <b id="legendHighPct">0%</b></span>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-head">
+          <h2>Scanning Activity — Last 7 Days</h2>
+          <span class="chart-sub">Number of URLs analysed per day</span>
+        </div>
+        <div class="chart-body">
+          <canvas id="activityBar" role="img" aria-label="Bar chart of scans over the last seven days"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div id="analyticsEmpty" class="empty-state" role="status" hidden>
+      <svg viewBox="0 0 24 24" width="46" height="46" aria-hidden="true"><path fill="currentColor" d="M4 20V10m5.3 10V4m5.4 16v-7m5.3 7v-12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+      <h2>No data yet</h2>
+      <p>Scan a few URLs and this dashboard will light up with your personal risk profile.</p>
+      <a class="btn-primary-sm big" href="{{ url_for('index') }}#scanner">Scan your first URL</a>
+    </div>
+
+  </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/analytics.js') }}" defer></script>
+{% endblock %}

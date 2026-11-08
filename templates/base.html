@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="{{ csrf_token() }}" />
+  <meta name="description" content="{% block meta_description %}PhishGuard analyses URLs with rule-based heuristics to flag suspicious characteristics and help you avoid phishing attacks.{% endblock %}" />
+  <title>{% block title %}PhishGuard | Smart Phishing URL Detection{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%2322d3ee' d='M50 2 8 18v28c0 27 18 49 42 52 24-3 42-25 42-52V18L50 2z'/%3E%3Cpath fill='%23052e3f' d='M50 12 18 26v20c0 23 15 41 32 44V12z'/%3E%3Cpath fill='%2322d3ee' d='M43 63l-11-11 6-6 5 5 15-15 6 6-21 21z'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Ambient background grid / glow -->
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  <!-- ============ NAVIGATION ============ -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a class="brand" href="{{ url_for('index') }}" aria-label="PhishGuard home">
+        <svg class="brand-logo" viewBox="0 0 100 100" role="img" aria-label="PhishGuard shield logo">
+          <path class="shield-outer" d="M50 2 8 18v28c0 27 18 49 42 52 24-3 42-25 42-52V18L50 2z"/>
+          <path class="shield-inner" d="M50 12 18 26v20c0 23 15 41 32 44V12z"/>
+          <path class="shield-check" d="M43 63 32 52l6-6 5 5 15-15 6 6-21 21z"/>
+        </svg>
+        <span class="brand-text">Phish<span class="accent">Guard</span></span>
+      </a>
+
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="{{ url_for('index') }}" class="{{ 'active' if active_page == 'home' else '' }}">Home</a>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('history') }}" class="{{ 'active' if active_page == 'history' else '' }}">History</a>
+        <a href="{{ url_for('analytics') }}" class="{{ 'active' if active_page == 'analytics' else '' }}">Analytics</a>
+        {% endif %}
+      </nav>
+
+      <div class="nav-right">
+        {% if current_user.is_authenticated %}
+          <span class="scan-pill" id="totalScansPill" title="URLs you have scanned">
+            <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path fill="currentColor" d="M7 1a6 6 0 1 0 3.7 10.7l3.3 3.3 1.4-1.4-3.3-3.3A6 6 0 0 0 7 1Zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z"/></svg>
+            <span id="totalScansText">{{ total_scans }} scan{{ '' if total_scans == 1 else 's' }}</span>
+          </span>
+          <span class="user-chip" title="Signed in as {{ current_user.name }} ({{ current_user.email }})">
+            <span class="avatar" aria-hidden="true">{{ current_user.name.strip()[0] | upper }}</span>
+            <span class="user-name">{{ current_user.name }}</span>
+          </span>
+          <form method="post" action="{{ url_for('logout') }}" class="logout-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit" class="btn-ghost-danger" title="Sign out of PhishGuard">
+              <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M9 2h4a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9v-2h3V4H9V2ZM7.6 4.6 6.2 3.2 2 7.4l4.2 4.2 1.4-1.4L5 8h7V6H5l2.6-1.4Z"/></svg>
+              Logout
+            </button>
+          </form>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="btn-ghost">Sign in</a>
+          <a href="{{ url_for('register') }}" class="btn-primary-sm">Create account</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ FLASH MESSAGES ============ -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="container flash-stack" role="status" aria-live="polite">
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <span class="brand-text small">Phish<span class="accent">Guard</span></span>
+        <p>Smart, transparent phishing URL assessment for everyone.</p>
+      </div>
+      <div class="footer-disclaimer">
+        <strong>Disclaimer:</strong> PhishGuard performs heuristic analysis only. It cannot guarantee that a
+        website is safe or malicious, and may return false positives / false negatives. Never rely on it as
+        your sole line of defence — verify domains, use HTTPS, and enable two-factor authentication. The
+        submitted URL is never visited.
+      </div>
+      <p class="footer-meta">Built with Python · Flask · SQLite · Vanilla JS &nbsp;|&nbsp; Day 2 of PhishGuard</p>
+    </div>
+  </footer>
+
+  <!-- Toast for transient messages -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

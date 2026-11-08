@@ -1,0 +1,29 @@
+# Instance folder & SQLite databases
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Environment files & secrets
+.env
+.env.local
+*.env
+
+# Python virtual environments
+venv/
+.venv/
+env/
+
+# Editor & IDE settings
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db

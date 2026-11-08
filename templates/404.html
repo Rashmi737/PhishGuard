@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found | PhishGuard{% endblock %}
+
+{% block content %}
+<main class="page-main">
+  <div class="container">
+    <div class="empty-state">
+      <div class="four-oh-four">404</div>
+      <h2>Lost in cyberspace?</h2>
+      <p>The page you requested doesn't exist. It may have moved — or never did.</p>
+      <a class="btn-primary-sm big" href="{{ url_for('index') }}">Back to dashboard</a>
+    </div>
+  </div>
+</main>
+{% endblock %}

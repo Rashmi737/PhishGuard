@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Sign In | PhishGuard{% endblock %}
+
+{% block content %}
+<main class="auth-page">
+  <div class="container auth-shell">
+
+    <!-- Brand / value panel -->
+    <aside class="auth-panel" aria-label="Why create an account">
+      <svg class="auth-shield" viewBox="0 0 100 100" role="img" aria-label="PhishGuard shield">
+        <path class="shield-outer" d="M50 2 8 18v28c0 27 18 49 42 52 24-3 42-25 42-52V18L50 2z"/>
+        <path class="shield-inner" d="M50 12 18 26v20c0 23 15 41 32 44V12z"/>
+        <path class="shield-check" d="M43 63 32 52l6-6 5 5 15-15 6 6-21 21z"/>
+      </svg>
+      <h2 class="auth-panel-title">Hunt Phishing <span class="gradient-text">Before It Hunts You</span></h2>
+      <p class="auth-panel-sub">Sign in to unlock your personal threat dashboard:</p>
+      <ul class="auth-points">
+        <li><span class="ap-icon">01</span> Scan URLs with nine weighted heuristic checks</li>
+        <li><span class="ap-icon">02</span> Your full scan history, saved permanently</li>
+        <li><span class="ap-icon">03</span> Risk analytics and 7-day activity trends</li>
+      </ul>
+      <p class="auth-panel-note">Submitted URLs are never visited or downloaded — analysis is static and local.</p>
+    </aside>
+
+    <!-- Form panel -->
+    <section class="auth-card" aria-labelledby="login-title">
+      <h1 id="login-title" class="auth-title">Welcome back</h1>
+      <p class="auth-sub">Sign in to access your phishing scan history and analytics.</p>
+
+      {% if error %}
+        <div class="auth-error" role="alert">
+          <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm1 10H7V9h2v2Zm0-4H7V4h2v3Z"/></svg>
+          {{ error }}
+        </div>
+      {% endif %}
+
+      <form method="post" action="{{ url_for('login') }}" class="auth-form" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+        <div class="field">
+          <label for="email">Email address</label>
+          <input id="email" name="email" type="email" autocomplete="email" required maxlength="254"
+                 placeholder="you@example.com" value="{{ email }}" />
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="password-wrap">
+            <input id="password" name="password" type="password" autocomplete="current-password" required
+                   placeholder="Your password" />
+            <button type="button" class="toggle-visibility" data-target="password" aria-label="Show password">Show</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-auth">Sign in</button>
+      </form>
+
+      <p class="auth-switch">New to PhishGuard? <a href="{{ url_for('register') }}">Create an account</a></p>
+    </section>
+
+  </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

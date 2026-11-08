@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Scan History | PhishGuard{% endblock %}
+
+{% block content %}
+<main class="page-main">
+  <div class="container">
+
+    <div class="page-head">
+      <div>
+        <p class="section-kicker">Your Records</p>
+        <h1 class="section-title">Scan <span class="gradient-text">History</span></h1>
+        <p class="section-sub left">Every URL you have analysed, newest first. Only you can see this page.</p>
+      </div>
+      <div class="page-head-side">
+        <span class="mem-note db-note" title="Persisted in SQLite">
+          <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path fill="currentColor" d="M8 1C4.7 1 2 2.3 2 4v8c0 1.7 2.7 3 6 3s6-1.3 6-3V4c0-1.7-2.7-3-6-3Zm4 11c0 .7-1.6 1.7-4 1.7S4 12.7 4 12V9.6c1.1.7 2.5 1 4 1s2.9-.3 4-1V12Zm0-4.4c0 .7-1.6 1.7-4 1.7S4 8.3 4 7.6V5.5C5.1 6.2 6.5 6.5 8 6.5s2.9-.3 4-1v2.1ZM8 5.5C5.6 5.5 4 4.5 4 4s1.6-1.5 4-1.5S12 3.5 12 4s-1.6 1.5-4 1.5Z"/></svg>
+          {{ total_scans }} total scan{{ '' if total_scans == 1 else 's' }}
+        </span>
+        <a class="btn-primary-sm" href="{{ url_for('index') }}#scanner">Scan another URL</a>
+      </div>
+    </div>
+
+    {% if scans %}
+      <div class="history-card" role="table" aria-label="Your phishing scan history">
+        <div class="history-row history-head" role="row" aria-hidden="true">
+          <span role="columnheader">Scanned URL</span>
+          <span role="columnheader">Risk</span>
+          <span role="columnheader">Score</span>
+          <span role="columnheader">Date (UTC)</span>
+          <span role="columnheader">Indicators</span>
+        </div>
+
+        {% for scan in scans %}
+          <div class="history-row" role="row">
+            <div class="hist-url-cell" role="cell">
+              <span class="hist-url" title="{{ scan.url }}">{{ scan.url }}</span>
+              <button type="button" class="copy-btn" data-copy="{{ scan.url }}" aria-label="Copy URL to clipboard" title="Copy URL">
+                <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M5 2h6a1 1 0 0 1 1 1v1h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-1H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h1V2Zm1 2H4v9h6v-1H6V4Zm2-1v9h5V3H8Z"/></svg>
+              </button>
+            </div>
+            <div role="cell"><span class="risk-badge small {{ scan.risk_level }}">{{ scan.category }}</span></div>
+            <div role="cell"><span class="hist-score {{ scan.risk_level }}">{{ scan.score }}</span></div>
+            <div role="cell" class="hist-date">{{ scan.scanned_at.strftime('%d %b %Y · %H:%M') }}</div>
+            <div role="cell" class="hist-indicators">
+              {% if scan.indicators %}
+                {% for ind in scan.indicators[:3] %}
+                  <span class="ind-tag" title="{{ ind.detail }} (+{{ ind.points }} pts)">{{ ind.label }}</span>
+                {% endfor %}
+                {% if scan.indicators|length > 3 %}
+                  <span class="ind-tag more" title="{{ scan.indicators[3:] | map(attribute='label') | join(', ') }}">+{{ scan.indicators|length - 3 }} more</span>
+                {% endif %}
+              {% else %}
+                <span class="ind-none">None triggered</span>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="pagination" aria-label="History pages">
+        {% if pagination.has_prev %}
+          <a class="page-btn" href="{{ url_for('history', page=pagination.prev_num) }}" rel="prev">← Previous</a>
+        {% else %}
+          <span class="page-btn disabled" aria-disabled="true">← Previous</span>
+        {% endif %}
+        <span class="page-status">Page {{ pagination.page }} of {{ pagination.pages or 1 }}</span>
+        {% if pagination.has_next %}
+          <a class="page-btn" href="{{ url_for('history', page=pagination.next_num) }}" rel="next">Next →</a>
+        {% else %}
+          <span class="page-btn disabled" aria-disabled="true">Next →</span>
+        {% endif %}
+      </div>
+
+    {% else %}
+      <div class="empty-state" role="status">
+        <svg viewBox="0 0 24 24" width="46" height="46" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 0 0-9 9c0 2.4.94 4.6 2.5 6.2l1.5-1.5A7 7 0 1 1 19 12a7 7 0 0 1-2 4.9l1.4 1.5A9 9 0 0 0 12 3Zm-1 8h2v6h-2v-6Z" opacity=".8"/></svg>
+        <h2>No scans yet</h2>
+        <p>URLs you check will appear here with their risk score, category and triggered indicators.</p>
+        <a class="btn-primary-sm big" href="{{ url_for('index') }}#scanner">Scan your first URL</a>
+      </div>
+    {% endif %}
+
+  </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endblock %}

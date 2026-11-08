@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% block title %}PhishGuard | Smart Phishing URL Detection{% endblock %}
+
+{% block content %}
+<main id="top">
+
+    <!-- ============ HERO ============ -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-badge">
+          <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path fill="currentColor" d="M8 0 1 2.9v4.4c0 4.4 3 8.6 7 9.7 4-1.1 7-5.3 7-9.7V2.9L8 0Zm3.4 6.6-4 4a.8.8 0 0 1-1.1 0l-2-2 1.1-1.1 1.4 1.4 3.5-3.5 1.1 1.2Z"/></svg>
+          Rule-based heuristic protection — your scans are saved to your account
+        </div>
+        <h1 class="hero-title">Protect Yourself From<br /><span class="gradient-text">Phishing Attacks</span></h1>
+        <p class="hero-sub">
+          PhishGuard scans a submitted URL with nine rule-based security checks and returns a
+          weighted risk score between <strong>0 and 100</strong>. The URL is never opened, fetched or
+          executed — analysis happens entirely on the server using structural heuristics.
+        </p>
+
+        <!-- ============ SCANNER CARD ============ -->
+        <div id="scanner" class="scanner-card" role="region" aria-label="URL scanner">
+          <form id="scanForm" class="scan-form" novalidate>
+            <label class="input-label" for="urlInput">Website URL</label>
+            <div class="input-row">
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                  <path fill="currentColor" d="M10.6 13.4a1 1 0 0 0 1.4 1.4l4.2-4.2a3.5 3.5 0 0 0-4.95-4.95l-2.4 2.4a1 1 0 1 0 1.4 1.4l2.4-2.4a1.5 1.5 0 0 1 2.12 2.12l-4.17 4.13Zm4.8-2.8a1 1 0 0 0-1.4-1.4l-4.2 4.2a3.5 3.5 0 0 0 4.95 4.95l2.4-2.4a1 1 0 0 0-1.4-1.4l-2.4 2.4a1.5 1.5 0 0 1-2.12-2.12l4.17-4.13Z"/>
+                </svg>
+                <input id="urlInput" name="url" type="text" autocomplete="off" spellcheck="false"
+                       placeholder="https://example.com or example.com" maxlength="2048"
+                       aria-label="Enter the URL you want to scan" />
+              </div>
+              <button type="submit" id="scanBtn" class="btn-scan">
+                <span class="btn-label">
+                  Scan URL
+                </span>
+                <span class="btn-loading" aria-hidden="true">
+                  <span class="spinner"></span> Scanning…
+                </span>
+              </button>
+            </div>
+            <p class="input-hint">
+              <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm1 10H7V7h2v4Zm0-6H7V3h2v2Z"/></svg>
+              We never open or download the page. Free heuristic assessment, not a safety guarantee.
+            </p>
+            <p id="formError" class="form-error" role="alert" hidden></p>
+          </form>
+        </div>
+
+        <!-- Quick test chips -->
+        <div class="quick-tests" aria-label="Example URLs to test">
+          <span class="quick-label">Try:</span>
+          <button type="button" class="chip" data-url="https://www.wikipedia.org">wikipedia.org</button>
+          <button type="button" class="chip" data-url="http://secure-login-verify-account.example.com/update/password">verify-login.example</button>
+          <button type="button" class="chip" data-url="http://192.168.4.12/paypal/signin">IP-address host</button>
+          <button type="button" class="chip" data-url="https://paypa1-secure.com/login/verify">paypa1 lookalike</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RESULTS ============ -->
+    <section id="results" class="results-section" hidden aria-live="polite">
+      <div class="container">
+        <div id="resultCard" class="result-card risk-low">
+          <div class="result-head">
+            <div>
+              <p class="result-kicker">Scan Result</p>
+              <h2 class="result-domain" id="resDomain">example.com</h2>
+              <p class="result-url" id="resUrl">https://example.com</p>
+            </div>
+            <div id="resBadge" class="risk-badge low">Low Risk</div>
+          </div>
+
+          <div class="result-body">
+            <!-- Score ring -->
+            <div class="meter-block">
+              <svg class="score-ring" viewBox="0 0 140 140" role="img" aria-label="Risk score meter">
+                <circle class="ring-track" cx="70" cy="70" r="56"/>
+                <circle class="ring-value" id="ringValue" cx="70" cy="70" r="56"/>
+                <text x="70" y="66" text-anchor="middle" class="ring-score" id="resScore">0</text>
+                <text x="70" y="88" text-anchor="middle" class="ring-max">/ 100</text>
+              </svg>
+              <p class="meter-caption">Heuristic Risk Score</p>
+              <div class="meter-bar" aria-hidden="true">
+                <div class="meter-fill" id="meterFill"></div>
+                <span class="meter-tick" style="left:30%"></span>
+                <span class="meter-tick" style="left:70%"></span>
+              </div>
+              <div class="meter-scale" aria-hidden="true"><span>Low</span><span>Medium</span><span>High</span></div>
+            </div>
+
+            <!-- Findings -->
+            <div class="findings-block">
+              <h3 class="block-title">Detected Indicators</h3>
+              <ul id="resIndicators" class="indicator-list"></ul>
+              <div id="resClean" class="clean-note" hidden>
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2 4 6v6c0 5.2 3.4 10.1 8 12 4.6-1.9 8-6.8 8-12V6l-8-4Zm-2.2 13.2-3-3 1.4-1.4 1.6 1.6 5-5 1.4 1.4-6.4 6.4Z"/></svg>
+                No suspicious indicators were triggered by the rule-based checks.
+              </div>
+
+              <h3 class="block-title">Why This Score?</h3>
+              <p id="resExplanation" class="explanation"></p>
+
+              <h3 class="block-title">Recommended Action</h3>
+              <div id="resRecommendation" class="recommendation low"></div>
+              <a class="result-history-link" href="{{ url_for('history') }}">View this scan in your history →</a>
+            </div>
+          </div>
+
+          <div class="result-footer">
+            <span class="legend-item"><span class="dot dot-low"></span>0–29 Low</span>
+            <span class="legend-item"><span class="dot dot-medium"></span>30–69 Medium</span>
+            <span class="legend-item"><span class="dot dot-high"></span>70–100 High</span>
+            <span class="legend-disclaimer">Heuristics can misfire — always verify the domain yourself.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECURITY STATISTICS ============ -->
+    <section id="statistics" class="section stats-section">
+      <div class="container">
+        <div class="section-head">
+          <p class="section-kicker">Threat Landscape</p>
+          <h2 class="section-title">Why Phishing Is Still The <span class="gradient-text">#1 Attack Vector</span></h2>
+          <p class="section-sub">Public industry estimates (sources: IBM Cost of a Data Breach, Verizon DBIR, APWG). Figures are indicative, not absolute.</p>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" data-target="90" data-suffix="%">0%</div>
+            <div class="stat-label">of data breaches involve a phishing or social-engineering element</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" data-target="3.4" data-decimals="1" data-suffix="B">0B</div>
+            <div class="stat-label">phishing emails sent worldwide every single day (estimated)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" data-target="4.88" data-decimals="2" data-prefix="$" data-suffix="M">$0M</div>
+            <div class="stat-label">average cost of one data breach (IBM, 2024)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" data-target="84" data-suffix="%">0%</div>
+            <div class="stat-label">of organisations report phishing as their most frequent threat</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DETECTION ENGINE ============ -->
+    <section id="engine" class="section engine-section">
+      <div class="container">
+        <div class="section-head">
+          <p class="section-kicker">Under The Hood</p>
+          <h2 class="section-title">How The <span class="gradient-text">Detection Engine</span> Works</h2>
+          <p class="section-sub">Nine transparent, weighted checks. No black box — every triggered rule is shown with the exact points it added.</p>
+        </div>
+
+        <div class="engine-grid" id="engineGrid"><!-- populated by JS: keeps HTML/JS in sync --></div>
+      </div>
+    </section>
+
+    <!-- ============ RECENT SCANS ============ -->
+    <section id="recent" class="section recent-section">
+      <div class="container">
+        <div class="section-head row-head">
+          <div>
+            <p class="section-kicker">Your Activity</p>
+            <h2 class="section-title">Recent <span class="gradient-text">Scans</span></h2>
+          </div>
+          <div class="recent-head-side">
+            <span class="mem-note db-note" title="Persisted in your SQLite-backed account history">
+              <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path fill="currentColor" d="M8 1C4.7 1 2 2.3 2 4v8c0 1.7 2.7 3 6 3s6-1.3 6-3V4c0-1.7-2.7-3-6-3Zm4 11c0 .7-1.6 1.7-4 1.7S4 12.7 4 12V9.6c1.1.7 2.5 1 4 1s2.9-.3 4-1V12Zm0-4.4c0 .7-1.6 1.7-4 1.7S4 8.3 4 7.6V5.5C5.1 6.2 6.5 6.5 8 6.5s2.9-.3 4-1v2.1ZM8 5.5C5.6 5.5 4 4.5 4 4s1.6-1.5 4-1.5S12 3.5 12 4s-1.6 1.5-4 1.5Z"/></svg>
+              Saved to your account
+            </span>
+            <a class="btn-outline-sm" href="{{ url_for('history') }}">View full history →</a>
+            <a class="btn-outline-sm" href="{{ url_for('analytics') }}">Analytics →</a>
+          </div>
+        </div>
+        <div class="recent-card">
+          <ul id="recentList" class="recent-list"></ul>
+          <p id="recentEmpty" class="recent-empty">
+            <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 0 0-9 9c0 2.4.94 4.6 2.5 6.2l1.5-1.5A7 7 0 1 1 19 12a7 7 0 0 1-2 4.9l1.4 1.5A9 9 0 0 0 12 3Zm-1 8h2v6h-2v-6Z" opacity=".8"/></svg>
+            No scans yet.<br /><span>Paste a URL above and hit <strong>Scan URL</strong> — your results will be saved here.</span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% endblock %}
